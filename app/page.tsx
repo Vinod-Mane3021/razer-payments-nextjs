@@ -1,32 +1,32 @@
 "use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useCreateOrder } from "@/hooks/use-create-order";
+// import { useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { useCreateOrder } from "@/hooks/use-create-order";
 import { Pricing } from "@/components/pricing";
 
 export default function Home() {
-  const [amount, setAmount] = useState<number>(0);
-  const { createOrder, isLoading, error, data } = useCreateOrder();
+  // const [amount, setAmount] = useState<number>(0);
+  // const { createOrder, isLoading, error, data } = useCreateOrder();
 
   // US UK singapur Aust UAE
-  const handleOrder = async () => {
-    if (amount <= 0) return alert("Please enter a valid amount");
-    try {
-      const orderData = await createOrder({
-        option: {
-          amount: amount * 100, // Convert to paise
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-        },
-      });
+  // const handleOrder = async () => {
+  //   if (amount <= 0) return alert("Please enter a valid amount");
+  //   try {
+  //     const orderData = await createOrder({
+  //       option: {
+  //         amount: amount * 100, // Convert to paise
+  //         currency: "INR",
+  //         receipt: `receipt_${Date.now()}`,
+  //       },
+  //     });
       
-      console.log("Order created:", orderData);
-    } catch (err) {
-      console.error("Order creation failed:", err);
-    }
-  };
+  //     console.log("Order created:", orderData);
+  //   } catch (err) {
+  //     console.error("Order creation failed:", err);
+  //   }
+  // };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center flex-col">

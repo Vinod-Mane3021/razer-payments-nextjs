@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { BillingConfig, getPlanIntervals, getPrimaryLineItem, LineItemSchema } from '@/schema/billing';
 import useGetCurrentPlan from '@/hooks/use-get-current-plan';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Badge } from './badge';
 import { Separator } from './ui/separator';
 import { If } from './if';
@@ -14,6 +14,7 @@ import { LineItemDetails } from './line-item-details';
 import { Button } from './ui/button';
 import { useTranslation } from 'react-i18next';
 import { Option, useCreateOrder } from '@/hooks/use-create-order';
+import { detectUserCurrency, formatCurrency } from '@/lib/billing';
 
 interface Paths {
   signUp: string;
@@ -596,47 +597,93 @@ function DefaultCheckoutButton(
   );
 }
 
-function LineItemPrice({
-  lineItem,
-  plan,
-  interval,
-  product,
-  alwaysDisplayMonthlyPrice = true,
-}: {
-  lineItem: z.infer<typeof LineItemSchema> | undefined;
-  plan: {
-    label?: string;
-  };
-  interval: Interval | undefined;
-  product: {
-    currency: string;
-  };
-  alwaysDisplayMonthlyPrice?: boolean;
-}) {
-  const { i18n } = useTranslation();
+const LineItemPrice = ({
+    plan,
+    lineItem,
+    alwaysDisplayMonthlyPrice,
+    interval
+  }: {
+    lineItem: z.infer<typeof LineItemSchema> | undefined;
+    plan: {
+      label?: string;
+    };
+    interval: Interval | undefined;
+    product: {
+      currency: string;
+    };
+    alwaysDisplayMonthlyPrice?: boolean;
+  }) => {
+  const [price, setPrice] = useState<string | null>(null);
   const isYearlyPricing = interval === 'year';
 
-  const cost = lineItem
+  useEffect(() => {
+    // Detect locale and currency on the client only
+    if(!lineItem?.cost) return;
+      const cost = lineItem
     ? isYearlyPricing
       ? alwaysDisplayMonthlyPrice
         ? Number(lineItem.cost / 12).toFixed(2)
         : lineItem.cost
       : lineItem?.cost
     : 0;
-
-  const costString =
-    lineItem &&
-    formatCurrency({
-      currencyCode: product.currency,
-      locale: i18n.language,
+    const locale = navigator.language;
+    const currency = detectUserCurrency();
+    const formattedPrice = formatCurrency({
+      currencyCode: currency,
       value: cost,
+      locale: locale,
     });
+    setPrice(formattedPrice);
+  }, [alwaysDisplayMonthlyPrice, isYearlyPricing, lineItem]);
 
-  const labelString = plan.label && (
-    plan.label
-  );
+  if (!price) return null; // Render nothing on the server
 
-  return costString ?? labelString ?? "Custom";
-}
+  console.log({price})
+
+  return <span>{price}</span>;
+};
+
+// function LineItemPrice({
+//   lineItem,
+//   plan,
+//   interval,
+//   product,
+//   alwaysDisplayMonthlyPrice = true,
+// }: {
+//   lineItem: z.infer<typeof LineItemSchema> | undefined;
+//   plan: {
+//     label?: string;
+//   };
+//   interval: Interval | undefined;
+//   product: {
+//     currency: string;
+//   };
+//   alwaysDisplayMonthlyPrice?: boolean;
+// }) {
+//   const { i18n } = useTranslation();
+//   const isYearlyPricing = interval === 'year';
+
+//   const cost = lineItem
+//     ? isYearlyPricing
+//       ? alwaysDisplayMonthlyPrice
+//         ? Number(lineItem.cost / 12).toFixed(2)
+//         : lineItem.cost
+//       : lineItem?.cost
+//     : 0;
+
+//   const costString =
+//     lineItem &&
+//     formatCurrency({
+//       currencyCode: product.currency,
+//       locale: i18n.language,
+//       value: cost,
+//     });
+
+//   const labelString = plan.label && (
+//     plan.label
+//   );
+
+//   return costString ?? labelString ?? "Custom";
+// }
 
 
