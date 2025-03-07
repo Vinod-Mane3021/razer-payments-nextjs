@@ -269,7 +269,7 @@ const ProductSchema = z
     },
   );
 
-const BillingSchema = z
+export const BillingSchema = z
   .object({
     provider: BillingProviderSchema,
     products: z.array(ProductSchema).nonempty(),

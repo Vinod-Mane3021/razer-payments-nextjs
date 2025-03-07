@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-import { Webhooks } from "razorpay/dist/types/webhooks";
+// import { Webhooks } from "razorpay/dist/types/webhooks";
 
 
-type RazorpayWebhook = Webhooks.RazorpayWebhook
-type RazorpayWebhookBaseRequestBody = Webhooks.RazorpayWebhookBaseRequestBody
-type RazorpayWebhookCreateRequestBody = Webhooks.RazorpayWebhookCreateRequestBody
-type RazorpayWebhookUpdateRequestBody = Webhooks.R
+// type RazorpayWebhook = Webhooks.RazorpayWebhook
+// type RazorpayWebhookBaseRequestBody = Webhooks.RazorpayWebhookBaseRequestBody
+// type RazorpayWebhookCreateRequestBody = Webhooks.RazorpayWebhookCreateRequestBody
+// type RazorpayWebhookUpdateRequestBody = Webhooks.RazorpayWebhookUpdateRequestBody
 
 const samplePayloadEntityData = {
     id: 'pay_Q3VurzW5Fexlv1',
@@ -70,7 +70,9 @@ const sampleWebhookData = {
     created_at: 1741265725
 }
 
-type PayloadEntity = typeof samplePayloadEntityData
+console.log({sampleWebhookData})
+
+// type PayloadEntity = typeof samplePayloadEntityData
 type Webhook = typeof sampleWebhookData
 
 export async function POST(req: NextRequest) {

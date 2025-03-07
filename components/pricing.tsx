@@ -4,9 +4,15 @@ import React from 'react';
 import { SecondaryHero } from './secondary-hero';
 import { Pill } from './pill';
 import { PricingTable } from './pricing-table';
-import billingConfig from '@/constants/billing'
+import { useGetBillingConfig } from '@/hooks/use-billing-config';
 
 export const Pricing = () => {
+
+  const { billingConfig } = useGetBillingConfig()
+
+  if(!billingConfig) {
+    return null
+  }
 
   return (
     <div className={'container mx-auto'}>

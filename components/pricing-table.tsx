@@ -48,13 +48,15 @@ export function PricingTable({
   const router = useRouter()
   const intervals = getPlanIntervals(config).filter(Boolean) as Interval[];
   const [interval, setInterval] = useState(intervals[0]!);
-  const { createOrder, data, isLoading } = useCreateOrder()
+  const { createOrder } = useCreateOrder()
 
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(null)
 
+  console.log({selectedProduct})
 
   // open checkout
   const handleOpenCheckout = async (product: ProductType, type: "custom" | "price", productName: string) => {
+
 
     console.log({product})
 
@@ -598,7 +600,6 @@ function DefaultCheckoutButton(
 }
 
 const LineItemPrice = ({
-    plan,
     lineItem,
     alwaysDisplayMonthlyPrice,
     interval

@@ -5,8 +5,9 @@ import { PlusSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { If } from './if';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Trans } from './trans';
+import { formatCurrency } from '@/lib/billing';
 
 const className = 'flex text-secondary-foreground items-center text-sm';
 
