@@ -86,7 +86,7 @@ export function PricingTable({
     const planDetails = {
       name: productName,
       description,
-      price: Number(price)/100,
+      price: Number(price),
       interval: interval,
       currency: product.currency_code,
     }
@@ -398,7 +398,7 @@ function PricingItem(
                         },
                       },
                     ],
-                    currency_code: "USD",
+                    currency_code: props.product.currency,
                   };
                   handleCheckout(product)
                 }}

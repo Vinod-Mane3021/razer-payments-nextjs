@@ -44,7 +44,7 @@ export const getLocaleForCurrency = (currency: string): string => {
 // Fetch exchange rates (mock function, replace with real API call)
 const fetchExchangeRate = async (currency: string): Promise<number> => {
   const response = await fetch(
-    `https://api.exchangerate-api.com/v4/latest/USD`
+    `https://api.exchangerate-api.com/v4/latest/${BASE_PRODUCT_CURRENCY}`
   );
   const data = await response.json();
   return data.rates[currency] || 1; // Default to 1 if currency not found
@@ -53,9 +53,8 @@ const fetchExchangeRate = async (currency: string): Promise<number> => {
 // Convert USD to local currency
 export const convertToLocalCurrency = async (
   usdAmount: number,
-  currency: string
+  exchangeRate: number
 ): Promise<number> => {
-  const exchangeRate = await fetchExchangeRate(currency);
   return usdAmount * exchangeRate;
 };
 
@@ -67,6 +66,7 @@ export const detectUserCurrency = (): string => {
 
     const currencyMap: { [key: string]: string } = {
       IN: "INR",
+      "en-IN": "INR",
       US: "USD",
       GB: "GBP",
       AU: "AUD",
@@ -106,7 +106,7 @@ export const BASE_PRODUCT_PRICE: PriceType = {
   },
   Pro: {
     Monthly: 19.99,
-    Yearly: 199.99,
+    Yearly: 199,
   },
   Enterprise: {
     Monthly: 29.99,
@@ -133,35 +133,37 @@ const convertBaseProductPrice = async (
       Yearly: 0,
     },
   };
+  
+  const exchangeRate = await fetchExchangeRate(currency);
 
   // Convert Starter prices
   localizedPrices.Starter.Monthly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Starter.Monthly,
-    currency
+    exchangeRate
   );
   localizedPrices.Starter.Yearly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Starter.Yearly,
-    currency
+    exchangeRate
   );
 
   // Convert Pro prices
   localizedPrices.Pro.Monthly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Pro.Monthly,
-    currency
+    exchangeRate
   );
   localizedPrices.Pro.Yearly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Pro.Yearly,
-    currency
+    exchangeRate
   );
 
   // Convert Enterprise prices
   localizedPrices.Enterprise.Monthly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Enterprise.Monthly,
-    currency
+    exchangeRate
   );
   localizedPrices.Enterprise.Yearly = await convertToLocalCurrency(
     BASE_PRODUCT_PRICE.Enterprise.Yearly,
-    currency
+    exchangeRate
   );
 
   return localizedPrices;

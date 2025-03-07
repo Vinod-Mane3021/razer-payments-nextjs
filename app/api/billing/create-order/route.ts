@@ -9,7 +9,7 @@ const razorpay = new Razorpay({
 export const POST = async (req: Request) => {
     try {
         const option: Option = (await req.json()).option
-        option.amount = Math.round(Number(option.amount) * 100);
+        // option.amount = Math.round(Number(option.amount));
         console.log({option})
         const order = await razorpay.orders.create(option);
         return Response.json({ data: order }, { status: 200 });

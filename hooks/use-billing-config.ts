@@ -161,6 +161,8 @@ export function useGetBillingConfig() {
           ],
         });
 
+        console.log({schema})
+
         setBillingConfig(schema);
       } catch (err) {
         console.error("Failed to load billing schema.", err);
