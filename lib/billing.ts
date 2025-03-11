@@ -1,3 +1,5 @@
+import countryToCurrency, { Countries } from "country-to-currency";
+
 /**
  * @name formatCurrency
  * @description Format the currency based on the currency code
@@ -13,33 +15,7 @@ export function formatCurrency(params: {
   }).format(Number(params.value));
 }
 
-// Add currency-based amount calculation
-export const getAmountInSubunits = (currency: string): number => {
-  const priceMap: { [key: string]: number } = {
-    INR: 100 * 100, // ₹100
-    USD: 10 * 100, // $10
-    EUR: 10 * 100, // €10
-    GBP: 10 * 100, // £10
-    JPY: 1000, // ¥1000
-    AUD: 15 * 100, // AU$15
-  };
 
-  return priceMap[currency] || 10 * 100;
-};
-
-export const getLocaleForCurrency = (currency: string): string => {
-  const currencyToLocaleMap: { [key: string]: string } = {
-    USD: "en-US",
-    INR: "en-IN",
-    JPY: "ja-JP",
-    EUR: "de-DE",
-    GBP: "en-GB",
-    AUD: "en-AU",
-    CAD: "en-CA",
-    SGD: "en-SG",
-  };
-  return currencyToLocaleMap[currency] || "en-US"; // Default to en-US
-};
 
 // Fetch exchange rates (mock function, replace with real API call)
 const fetchExchangeRate = async (currency: string): Promise<number> => {
@@ -58,31 +34,51 @@ export const convertToLocalCurrency = async (
   return usdAmount * exchangeRate;
 };
 
-export const detectUserCurrency = (): string => {
+const getUserCountry = async () => {
+  
+
   try {
-    const locale = navigator.language || "en-US";
-    console.log({ locale });
-    const region = locale.split("-")[1];
+    const response = await fetch("https://ipinfo.io/json");
+    const result = await response.json();
+    const country = result?.country || "";
+    return country;
+  } catch (error) {
+    console.error("Error fetching country:", error);
+    return "";
+  }
+};
 
-    const currencyMap: { [key: string]: string } = {
-      IN: "INR",
-      "en-IN": "INR",
-      US: "USD",
-      GB: "GBP",
-      AU: "AUD",
-      CA: "CAD",
-      JP: "JPY",
-      SG: "SGD",
-    };
+const cache_currency_key="user_currency"
+export const getCachedCurrency = () => {
+  const cachedCurrency = localStorage.getItem(cache_currency_key);
+  if(!cachedCurrency) return "USD"
+  return cachedCurrency;
+}
 
-    return currencyMap[region] || "USD";
+export const cacheCurrency = (currency: string) => {
+  localStorage.setItem(cache_currency_key, currency);
+}
+
+export const detectUserCurrency = async (): Promise<string> => {
+  try {
+    // const cachedCurrency= getCachedCurrency()
+    
+    // if (cachedCurrency) {
+    //   return cachedCurrency;
+    // }
+    const userCountry: Countries = await getUserCountry()
+    const currency = countryToCurrency[userCountry]
+    // cacheCurrency(currency);
+    return currency
   } catch (e) {
     console.error({ error: e });
     return "USD";
   }
 };
 
-export const BASE_PRODUCT_CURRENCY = "USD";
+
+
+export const BASE_PRODUCT_CURRENCY = "INR";
 
 type PriceType = {
   Starter: {
@@ -101,16 +97,16 @@ type PriceType = {
 
 export const BASE_PRODUCT_PRICE: PriceType = {
   Starter: {
-    Monthly: 5.99,
-    Yearly: 59.9,
+    Monthly: 1200,
+    Yearly: 13800,
   },
   Pro: {
-    Monthly: 19.99,
-    Yearly: 199,
+    Monthly: 1800,
+    Yearly: 20400,
   },
   Enterprise: {
-    Monthly: 29.99,
-    Yearly: 299.9,
+    Monthly: 2500,
+    Yearly: 28800,
   },
 };
 

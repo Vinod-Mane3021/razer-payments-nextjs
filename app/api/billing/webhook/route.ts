@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 // import { Webhooks } from "razorpay/dist/types/webhooks";
@@ -75,7 +74,7 @@ console.log({sampleWebhookData})
 // type PayloadEntity = typeof samplePayloadEntityData
 type Webhook = typeof sampleWebhookData
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: Request) => {
   try {
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
     const signature = req.headers.get("x-razorpay-signature") || "";
@@ -93,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     if (expectedSignature !== signature) {
       console.error("Invalid signature", { expectedSignature, receivedSignature: signature });
-      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+      return Response.json({ error: "Invalid signature" }, { status: 400 });
     }
 
 
@@ -169,6 +168,16 @@ export async function POST(req: NextRequest) {
         // await handleAuthorizedLogic(payload);
         break;
       case "payment.captured":
+        // save info into db
+        // await handleCapturedLogic(payload);
+        break;
+      case "subscription.captured":
+        // sub_id --> sub_1
+        // make db call for sub_id
+        // will get Object of Subscription from db
+        // updated status to active
+
+        // save info into db
         // await handleCapturedLogic(payload);
         break;
       case "payment.failed":
@@ -179,10 +188,10 @@ export async function POST(req: NextRequest) {
         break;
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json(
+    return Response.json(
       { error: "Internal Server Error" },
       { status: 500 }
     );

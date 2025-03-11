@@ -288,12 +288,13 @@ export const BillingSchema = z
     },
   )
 
-export function createBillingSchema(config: z.infer<typeof BillingSchema>) {
-  return BillingSchema.parse(config);
-}
-
+  
 export type BillingConfig = z.infer<typeof BillingSchema>;
 export type ProductSchema = z.infer<typeof ProductSchema>;
+
+export function createBillingSchema(config: z.infer<typeof BillingSchema>): BillingConfig {
+  return BillingSchema.parse(config);
+}
 
 export function getPlanIntervals(config: z.infer<typeof BillingSchema>) {
   const intervals = config.products

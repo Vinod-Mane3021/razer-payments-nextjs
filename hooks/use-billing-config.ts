@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
-import { convertBaseProductPrice, detectUserCurrency } from "@/lib/billing";
+import { convertBaseProductPrice } from "@/lib/billing";
 import { BillingConfig, createBillingSchema } from "@/schema/billing";
+import { useCurrency } from "@/store/use-currency";
 
 export function useGetBillingConfig() {
   const [billingConfig, setBillingConfig] = useState<BillingConfig | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { currency } = useCurrency()
 
   useEffect(() => {
     async function fetchBillingSchema() {
       try {
         setLoading(true);
-        const currency = detectUserCurrency();
+        console.log({detectUserCurrency: currency})
         const localizedPrices = await convertBaseProductPrice(currency);
 
         const schema: BillingConfig = createBillingSchema({
@@ -19,7 +21,7 @@ export function useGetBillingConfig() {
           products: [
             // Starter
             {
-              id: "starter",
+              id: "product_id_starter",
               name: "Starter",
               description: "The perfect plan to get started",
               currency,
@@ -27,12 +29,12 @@ export function useGetBillingConfig() {
               plans: [
                 {
                   name: "Starter Monthly",
-                  id: "starter-monthly",
+                  id: "plan_Q4ExvPcOTQwvBm",
                   paymentType: "recurring",
                   interval: "month",
                   lineItems: [
                     {
-                      id: "pri_01ja7smmrwdfw3w4stkt4bm03v",
+                      id: "plan_Q4ExvPcOTQwvBm",
                       name: "Starter",
                       cost: localizedPrices.Starter.Monthly,
                       type: "flat" as const,
@@ -41,12 +43,12 @@ export function useGetBillingConfig() {
                 },
                 {
                   name: "Starter Yearly",
-                  id: "starter-yearly",
+                  id: "plan_Q4HWjbLu51BQpG",
                   paymentType: "recurring",
                   interval: "year",
                   lineItems: [
                     {
-                      id: "pri_01ja7spbegts542cctrhanvqt5",
+                      id: "plan_Q4HWjbLu51BQpG",
                       name: "Base",
                       cost: localizedPrices.Starter.Yearly,
                       type: "flat" as const,
@@ -75,12 +77,12 @@ export function useGetBillingConfig() {
               plans: [
                 {
                   name: "Pro Monthly",
-                  id: "pro-monthly",
+                  id: "plan_Q4HYLGcevgUIFp",
                   paymentType: "recurring",
                   interval: "month",
                   lineItems: [
                     {
-                      id: "pri_01ja7ssjnb9czx6ktw9h4a1ztt",
+                      id: "plan_Q4HYLGcevgUIFp",
                       name: "Base",
                       cost: localizedPrices.Pro.Monthly,
                       type: "flat",
@@ -89,12 +91,12 @@ export function useGetBillingConfig() {
                 },
                 {
                   name: "Pro Yearly",
-                  id: "pro-yearly",
+                  id: "plan_Q4HYpE70OHILoF",
                   paymentType: "recurring",
                   interval: "year",
                   lineItems: [
                     {
-                      id: "pri_01ja7stacgz4q0q6jvgtnvx9a4",
+                      id: "plan_Q4HYpE70OHILoF",
                       name: "Base",
                       cost: localizedPrices.Pro.Yearly,
                       type: "flat",
@@ -173,7 +175,7 @@ export function useGetBillingConfig() {
     }
 
     fetchBillingSchema();
-  }, []);
+  }, [currency]);
 
   return { billingConfig, loading, error };
 }

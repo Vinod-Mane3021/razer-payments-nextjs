@@ -12,6 +12,11 @@ export const POST = async (req: Request) => {
         // option.amount = Math.round(Number(option.amount));
         console.log({option})
         const order = await razorpay.orders.create(option);
+        // await razorpay.subscriptions.create({
+        //     plan_id: "",
+
+
+        // })
         return Response.json({ data: order }, { status: 200 });
     } catch (error) {
         console.log({ error });
