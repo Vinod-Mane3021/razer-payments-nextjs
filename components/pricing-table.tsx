@@ -90,12 +90,10 @@ export function PricingTable({
       return;
     }
 
-    const period = product.items[0]?.price.name.includes("Monthly")
-      ? "monthly"
-      : ("yearly");
+    const period = product.items[0]?.price.name.includes("Monthly") ? "monthly": "yearly";
     const description = product.items[0]?.price.product.description;
     const price = product.items[0]?.price.unit_price.amount;
-    const product_name = product.items[0].price.product.name
+    const product_name = product.items[0].price.product.name.includes("Pro") ? "Pro" : "Starter"
 
     console.log({ product_items: product });
 

@@ -1,4 +1,5 @@
 import { SubscriptionOption } from "@/hooks/use-create-subscription";
+import { db } from "@/lib/prisma-client";
 import Razorpay from "razorpay";
 
 const razorpay = new Razorpay({
@@ -53,16 +54,27 @@ export const POST = async (req: Request) => {
     const option: SubscriptionOption = (await req.json()).option;
     console.log({option})
     const plan = await createPlaneIfRequired(option);
-    const order = await razorpay.subscriptions.create({
+    const razorpay_subscriptions = await razorpay.subscriptions.create({
       plan_id: plan.id,
       total_count: 1,
     });
+    console.log({ plan, razorpay_subscriptions });
 
-    console.log({ plan, order });
+     await db.subscription.create({
+      data: {
+        userId: option.useId,
+        amount: option.amount,
+        currency: option.currency,
+        name: option.name,
+        period: option.period,
+        status: razorpay_subscriptions.status,
+        subscriptionId: razorpay_subscriptions.id,
+      }
+    })
 
     // save in db with userId and subscriptionId
 
-    return Response.json({ data: order }, { status: 200 });
+    return Response.json({ data: razorpay_subscriptions }, { status: 200 });
   } catch (error) {
     console.log({ error });
     return Response.json({ error: "error" }, { status: 500 });

@@ -6,10 +6,11 @@ import { useState } from "react";
 export type SubscriptionOption = {
   useId: string;
   period: "monthly" | "yearly"; // monthly or yearly
-  name: string // Starter or Pro
+  name: "Starter" | "Pro" // Starter or Pro
   amount: number;
   currency: string;
 }
+
 
 interface SubscriptionDetails {
   option: SubscriptionOption
