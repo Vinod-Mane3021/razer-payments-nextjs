@@ -116,7 +116,7 @@ export function PricingTable({
     // };
 
     const option: SubscriptionOption = {
-      useId: user.id,
+      userId: user.id,
       amount: Number(price),
       currency: currency,
       name: product_name,

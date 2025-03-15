@@ -1,11 +1,7 @@
 import { SubscriptionOption } from "@/hooks/use-create-subscription";
 import { db } from "@/lib/prisma-client";
-import Razorpay from "razorpay";
+import { razorpay } from "@/lib/razorpay";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
 
 const createPlaneIfRequired = async (option: SubscriptionOption) => {
   const plans = await razorpay.plans.all();
@@ -19,32 +15,15 @@ const createPlaneIfRequired = async (option: SubscriptionOption) => {
   );
 
   if (existing_plan?.id) return existing_plan;
-
-  // create new plan
-//   const new_plan = await razorpay.plans.create({
-//     interval: 1,
-//     period: option.period,
-//     item: {
-//       amount: option.amount,
-//       currency: option.currency,
-//       name: option.name,
-//     },
-//   });
-
-console.log("creating new plan")
-
-    const new_plan = await razorpay.plans.create({
-        interval: 1,
-        period: option.period,
-        item: {
-        amount: 23333,
-        currency: "USD",
-        name: option.name,
-        },
-    });
-    
-
-    console.log({new_plan})
+  const new_plan = await razorpay.plans.create({
+    interval: 1,
+    period: option.period,
+    item: {
+      amount: 23333,
+      currency: "USD",
+      name: option.name,
+    },
+  });
 
   return new_plan;
 };
@@ -52,34 +31,49 @@ console.log("creating new plan")
 export const POST = async (req: Request) => {
   try {
     const option: SubscriptionOption = (await req.json()).option;
-    console.log({option})
+    
+    const existingSubscription = await db.subscription.findFirst({
+      where: { status: {in: ["active"]}, order: { userId: option.userId } },
+      include: { order: true },
+    });
+
+    console.log({existingSubscription})
+
+    if (existingSubscription) {
+      console.log("Cancelling existing subscription");
+
+      // const razorpay_new_subscriptions = await razorpay.subscriptions.fetch(existingSubscription.order.subscriptionId)
+
+      // await razorpay.subscriptions.cancel(existingSubscription.order.subscriptionId, false);  Error: Subscription is not cancellable in completed status.
+
+    }
+
+    
     const plan = await createPlaneIfRequired(option);
-    const razorpay_subscriptions = await razorpay.subscriptions.create({
+    
+    const razorpay_new_subscriptions = await razorpay.subscriptions.create({
       plan_id: plan.id,
       total_count: 1,
     });
-    console.log({ plan, razorpay_subscriptions });
+    
 
-     await db.subscription.create({
+    await db.order.create({
       data: {
-        userId: option.useId,
+        userId: option.userId,
         amount: option.amount,
         currency: option.currency,
         name: option.name,
         period: option.period,
-        status: razorpay_subscriptions.status,
-        subscriptionId: razorpay_subscriptions.id,
-      }
-    })
+        status: razorpay_new_subscriptions.status,
+        subscriptionId: razorpay_new_subscriptions.id,
+      },
+    });
 
     // save in db with userId and subscriptionId
 
-    return Response.json({ data: razorpay_subscriptions }, { status: 200 });
+    return Response.json({ data: razorpay_new_subscriptions }, { status: 200 });
   } catch (error) {
     console.log({ error });
     return Response.json({ error: "error" }, { status: 500 });
   }
 };
-
-
-

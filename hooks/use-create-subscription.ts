@@ -4,7 +4,7 @@ import { Subscriptions } from "razorpay/dist/types/subscriptions";
 import { useState } from "react";
 
 export type SubscriptionOption = {
-  useId: string;
+  userId: string;
   period: "monthly" | "yearly"; // monthly or yearly
   name: "Starter" | "Pro" // Starter or Pro
   amount: number;

@@ -35,17 +35,30 @@ enum SubscriptionName {
 }
 
 model Subscription {
-  id             Int                @id @default(autoincrement())
-  subscriptionId String             @unique
-  userId         String             @unique
-  status         SubscriptionStatus
-  period         SubscriptionPeriod
-  name           SubscriptionName
-  currency       String
-  amount         Int
-  paymentMethod String?
+  id      String             @id @default(cuid())
+  status  SubscriptionStatus
+  orderId String             @unique
 
-  // expire_by DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id            String             @id @default(cuid())
+  userId        String
+  status        SubscriptionStatus
+  period        SubscriptionPeriod
+  name          SubscriptionName
+  currency      String
+  amount        Int
+  paymentMethod String?
+
+  subscriptionId String @unique // razorpay subscription id
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscription Subscription?
 }

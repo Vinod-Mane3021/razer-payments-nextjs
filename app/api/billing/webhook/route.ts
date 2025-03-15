@@ -4,15 +4,39 @@ import crypto from "crypto";
 
 const updateSubscription = async (
   subscriptionId: string,
-  subscriptionPaymentMethod: string,
+  paymentMethod: string,
   status: SubscriptionStatusType
 ) => {
 
-  // TODO: issue
-  return await db.subscription.update({
-    where: { subscriptionId,  },
-    data: { status, paymentMethod: subscriptionPaymentMethod },
+  const updatedOrder = await db.order.update({
+    where: { subscriptionId: subscriptionId },
+    data: { status, paymentMethod },
   });
+
+  const existingSubscription = await db.subscription.findFirst({
+    where: { status: { in: ["active", "completed"] }, order: { userId: updatedOrder.userId } },
+    include: { order: true },
+  });
+
+  console.log("existingSubscription -------------------------------> ", existingSubscription?.id)
+
+  if(existingSubscription) {
+    return await db.subscription.update({
+      where: { id: existingSubscription?.id },
+      data: {
+        status,
+        orderId: updatedOrder.id,
+      },
+    });
+  }
+
+  return await db.subscription.create({
+    data: {
+      status,
+      orderId: updatedOrder.id,
+    },
+  });
+  
 };
 
 export const POST = async (req: Request) => {
@@ -44,6 +68,7 @@ export const POST = async (req: Request) => {
     const subscriptionId = webhookData.payload.subscription.entity.id as string;
     const subscriptionPaymentMethod = webhookData.payload.subscription.entity.payment_method as string;
 
+
     switch (event) {
       case "subscription.activated":
         await updateSubscription(subscriptionId, subscriptionPaymentMethod, "active");
@@ -53,6 +78,9 @@ export const POST = async (req: Request) => {
         break;
       case "subscription.completed":
         await updateSubscription(subscriptionId, subscriptionPaymentMethod, "completed");
+        break;
+      case "subscription.cancelled":
+        await updateSubscription(subscriptionId, subscriptionPaymentMethod, "cancelled");
         break;
       default:
         console.log(`Unhandled event: ${event}`);
